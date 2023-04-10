@@ -438,6 +438,10 @@ __device__ inline float smoothstep_2nd_derivative(float val) {
 	return 6.0f - 12.0f * val;
 }
 
+__device__ inline float instantpose_derivative(float val) {
+    return 1.0f + PI / 2 * sinf(PI * val);
+}
+
 __device__ inline float identity_fun(float val) {
 	return val;
 }

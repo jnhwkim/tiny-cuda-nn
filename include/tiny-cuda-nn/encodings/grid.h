@@ -276,7 +276,7 @@ __global__ void kernel_grid(
 	if (interpolation_type == InterpolationType::Nearest || interpolation_type == InterpolationType::Linear) {
 		TCNN_PRAGMA_UNROLL
 		for (uint32_t dim = 0; dim < N_POS_DIMS; ++dim) {
-			pos_fract(positions_in(dim, i), &pos[dim], &pos_derivative[dim], &pos_grid[dim], scale, identity_fun, identity_derivative);
+			pos_fract(positions_in(dim, i), &pos[dim], &pos_derivative[dim], &pos_grid[dim], scale, identity_fun, instantpose_derivative);
 		}
 	} else {
 		TCNN_PRAGMA_UNROLL
@@ -637,7 +637,7 @@ __global__ void kernel_grid_backward_input_backward_grid(
 	if (interpolation_type == InterpolationType::Nearest || interpolation_type == InterpolationType::Linear) {
 		TCNN_PRAGMA_UNROLL
 		for (uint32_t dim = 0; dim < N_POS_DIMS; ++dim) {
-			pos_fract(positions_in(dim, i), &pos[dim], &pos_derivative[dim], &pos_grid[dim], scale, identity_fun, identity_derivative);
+			pos_fract(positions_in(dim, i), &pos[dim], &pos_derivative[dim], &pos_grid[dim], scale, identity_fun, instantpose_derivative);
 		}
 	} else {
 		TCNN_PRAGMA_UNROLL
@@ -739,7 +739,7 @@ __global__ void kernel_grid_backward_input_backward_input(
 	if (interpolation_type == InterpolationType::Nearest || interpolation_type == InterpolationType::Linear) {
 		TCNN_PRAGMA_UNROLL
 		for (uint32_t dim = 0; dim < N_POS_DIMS; ++dim) {
-			pos_fract(positions_in(dim, i), &pos[dim], &pos_derivative[dim], &pos_2nd_derivative[dim], &pos_grid[dim], scale, identity_fun, identity_derivative, identity_2nd_derivative);
+			pos_fract(positions_in(dim, i), &pos[dim], &pos_derivative[dim], &pos_2nd_derivative[dim], &pos_grid[dim], scale, identity_fun, instantpose_derivative, identity_2nd_derivative);
 		}
 	} else {
 		TCNN_PRAGMA_UNROLL
