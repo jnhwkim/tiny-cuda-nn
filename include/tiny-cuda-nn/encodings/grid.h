@@ -276,7 +276,7 @@ __global__ void kernel_grid(
 	if (interpolation_type == InterpolationType::Nearest || interpolation_type == InterpolationType::Linear) {
 		TCNN_PRAGMA_UNROLL
 		for (uint32_t dim = 0; dim < N_POS_DIMS; ++dim) {
-			pos_fract(positions_in(dim, i), &pos[dim], &pos_derivative[dim], &pos_grid[dim], scale, identity_fun, instantpose_derivative);
+			pos_fract(positions_in(dim, i), &pos[dim], &pos_derivative[dim], &pos_grid[dim], scale, identity_fun, identity_derivative);
 		}
 	} else {
 		TCNN_PRAGMA_UNROLL
@@ -369,9 +369,13 @@ __global__ void kernel_grid(
 				pos_grid_local[grad_dim] = pos_grid[grad_dim] + 1;
 				auto val_right = grid_val(pos_grid_local);
 
+				// Instant-Pose (Heo et al., 2023)
+				auto grad_right = instantpose_derivative(weight / scale * pos[grad_dim]);
+				auto grad_left = instantpose_derivative(weight / scale * (1.0f - pos[grad_dim]));
+
 				TCNN_PRAGMA_UNROLL
 				for (uint32_t feature = 0; feature < N_FEATURES_PER_LEVEL; ++feature) {
-					grads[feature][grad_dim] += weight * ((float)val_right[feature] - (float)val_left[feature]) * pos_derivative[grad_dim];
+					grads[feature][grad_dim] += weight * ((float)grad_right * (float)val_right[feature] - (float)grad_left * (float)val_left[feature]) * pos_derivative[grad_dim];
 				}
 			}
 		}
@@ -637,7 +641,7 @@ __global__ void kernel_grid_backward_input_backward_grid(
 	if (interpolation_type == InterpolationType::Nearest || interpolation_type == InterpolationType::Linear) {
 		TCNN_PRAGMA_UNROLL
 		for (uint32_t dim = 0; dim < N_POS_DIMS; ++dim) {
-			pos_fract(positions_in(dim, i), &pos[dim], &pos_derivative[dim], &pos_grid[dim], scale, identity_fun, instantpose_derivative);
+			pos_fract(positions_in(dim, i), &pos[dim], &pos_derivative[dim], &pos_grid[dim], scale, identity_fun, identity_derivative);
 		}
 	} else {
 		TCNN_PRAGMA_UNROLL
@@ -739,7 +743,7 @@ __global__ void kernel_grid_backward_input_backward_input(
 	if (interpolation_type == InterpolationType::Nearest || interpolation_type == InterpolationType::Linear) {
 		TCNN_PRAGMA_UNROLL
 		for (uint32_t dim = 0; dim < N_POS_DIMS; ++dim) {
-			pos_fract(positions_in(dim, i), &pos[dim], &pos_derivative[dim], &pos_2nd_derivative[dim], &pos_grid[dim], scale, identity_fun, instantpose_derivative, identity_2nd_derivative);
+			pos_fract(positions_in(dim, i), &pos[dim], &pos_derivative[dim], &pos_2nd_derivative[dim], &pos_grid[dim], scale, identity_fun, identity_derivative, identity_2nd_derivative);
 		}
 	} else {
 		TCNN_PRAGMA_UNROLL
